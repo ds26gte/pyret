@@ -1,0 +1,87 @@
+= README
+
+This contains files (Racket, CSS, JS) for providing an enhanced
+Pollen syntax and output style. It is the responsibility of your
+repo containing Pollen-based docs to load this repo in the right
+place. Typically you may use the provided link:./pollen.rkt[] directly, or
+have your doc repo's pollen.rkt include this pollen.rkt.
+
+A repo that uses pollenboots is
+
+https://github.com/ds26gte/pyret-docs-pb
+
+which is the Pyret documentation written using Pollen (as opposed
+to Scribble).
+
+== Prerequisite
+
+Ensure you have the Pollen package installed in your Racket.
+
+  raco pkg install --auto pollen
+
+== Example
+
+To run the included example, do
+
+  raco pollen render index.ptree
+
+== What
+
+https://docs.racket-lang.org/pollen[Pollen] allows the use of
+Racket to create complicated Web pages in particular, and also
+other outputs. Plain Pollen is a very spare language, and requires
+extensions in order to make authoring pleasant. These extensions
+are pulled in through the Racket file pollen.rkt, and you may of
+course have this file load other Racket subfiles that provide
+distinct functionalities.
+
+Extensions may be of two kinds:
+
+1) new directives, e.g.,
+
+  (define-tag-function (highlight attrs elts)
+    `(em ,attrs ,@elts))
+
+which may then be used by the author in a Pollen source as:
+
+  This is ◊highlight{very important}!
+
+This is not a particularly novel directive, of course, but more
+complicated ones are possible. We can modify existing tags and
+create new tags -- examples of both are provided. Crucial Pollen
+Racket functions are: `define-tag-function`,
+`default-tag-function`, `decode-elements`, and `txexpr`. Ideally
+we should be able to put most of the work on `define-` and
+`default-tag-function`: the former acts like a macro for creating
+new tags, and the latter extracts the original values of tags.
+
+We can use Pollen markup syntax to include classes and other
+attributes. These can be the Bootstrap-provided classes, as long
+as the template file (template.html.p) adds in the
+Bootstrap-related CSS and JS.
+
+This repo being a general-purpose system, it doesn't
+provide these kinds of enhancements, leaving individual documents to
+tailor-make their own. However, such definitions are indispensable for an
+actual document.
+
+2) global transformer, i.e., the `root` function:
+
+This function operates on an intermediate Pollen tree that
+represents the entire text of a source file, and produces a new
+version that is enhanced with things like table of contents. It
+can create other files like a glossary that can then be picked up
+and inserted in the right place.
+
+Typically, the `root` is a composition of wrappers, where each
+wrapper does one dedicated transformation. In this repo, we have
+wrappers for table of contents, glossary, and cross references. We
+also include a wrapper for convenient writing, viz., blank lines
+for signifying paragraph separation, automatic inserting of smart
+quotes and dashes, and deduction of the external title.
+
+In addition, this repo's pollen.rkt provides utility Racket
+functions that can be used by an outside pollen.rkt to create new
+functionality. For instance, we can have directives that, in
+addition to some rendering task, also automatically insert anchor
+points that can then be given to the cross reference maker.

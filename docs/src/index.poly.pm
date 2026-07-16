@@ -50,4 +50,3 @@ updates over time.
 
 ◊include-section["glossary.poly.pm"]
 
-◊pollen-postlude[]
