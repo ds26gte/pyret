@@ -5,7 +5,10 @@ poly_pm_files := $(shell grep -oP '[\w/.-]+\.html' index.ptree | sed 's/\.html$$
 .PHONY: all debug-examples debug-tests clean cleanglob
 
 all:
-	@if [ ! -f _glossary.rkt ] || [ -f .xref-changed ]; then \
+	@if [ ! -f _glossary.rkt ]; then \
+		git ls-files | grep '\.\(poly\.pm\|rkt\)$$' | xargs raco make; \
+		raco pollen render -f index.ptree; \
+	elif [ -f .xref-changed ]; then \
 		rm -f .xref-changed; \
 		raco pollen render -f index.ptree; \
 	else \
@@ -17,7 +20,7 @@ all:
 			fi; \
 		done; \
 		if [ -n "$$stale" ]; then \
-			for f in $$stale; do raco pollen render -f $$f || true; done; \
+			for f in $$stale; do raco make $$f && raco pollen render -f $$f || true; done; \
 		fi; \
 	fi
 	racket make-globals.rkt
